@@ -1,9 +1,10 @@
-using Reservation.Observability;
+using Reservation.Diagnostics;
 using Reservation.Domain.Model;
+using Reservation.Observability;
 
 namespace Reservation.Application;
 
-public class ReservationService(ILogger logger)
+public class ReservationService(ILogger logger, IMetrics metrics)
 {
     public ConfirmedReservation Make(string hotelName, int paxNumber, (DateTime begin, DateTime end) stay)
     {
@@ -20,7 +21,7 @@ public class ReservationService(ILogger logger)
 
         var confirmedReservation = reservation.Confirm();
         logger.Info($"{nameof(ReservationService)} : Reservation {confirmedReservation.Reference} is confirmed");
-
+        metrics.Increment($"{hotelName}.bookings");
         return confirmedReservation;
     }
 }
