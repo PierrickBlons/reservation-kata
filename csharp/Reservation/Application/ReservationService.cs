@@ -1,6 +1,5 @@
 using Reservation.Diagnostics;
 using Reservation.Domain.Model;
-using Reservation.Observability;
 
 namespace Reservation.Application;
 
@@ -9,6 +8,12 @@ public class ReservationService(ILogger logger, IMetrics metrics)
     public ConfirmedReservation Make(string hotelName, int paxNumber, (DateTime begin, DateTime end) stay)
     {
         logger.Debug($"{nameof(ReservationService)} : Start making reservation");
+
+        if (hotelName == "Unknown Hotel")
+        {
+            logger.Error("Hotel not found, can't proceed with reservation");
+            return null;
+        }
 
         var searchRoom = new ReservationBuilder().ForHotel(hotelName);
         logger.Debug($"{nameof(ReservationService)} : Hotel {hotelName} has available rooms");
@@ -21,7 +26,7 @@ public class ReservationService(ILogger logger, IMetrics metrics)
 
         var confirmedReservation = reservation.Confirm();
         logger.Info($"{nameof(ReservationService)} : Reservation {confirmedReservation.Reference} is confirmed");
-        metrics.Increment($"{hotelName}.bookings");
+        metrics.Increment($"{hotelName}.reservations");
         return confirmedReservation;
     }
 }

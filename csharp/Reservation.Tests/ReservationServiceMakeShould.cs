@@ -21,5 +21,15 @@ namespace Reservation.Tests
             Check.That(confirmedReservation.Stay.End).Equals(end);
             Check.That(confirmedReservation.Reference).Equals("GHRKJIK-45");
         }
+
+        [Fact]
+        public void Gives_null_when_hotel_is_not_found()
+        {
+            const string? hotelName = "Unknown Hotel";
+            
+            var confirmedReservation = new ReservationService(new DummyLogger(), new DummyMetrics()).Make(hotelName, 3, (new DateTime(), new DateTime()));
+
+            Check.That(confirmedReservation).IsNull();
+        }
     }
 }
