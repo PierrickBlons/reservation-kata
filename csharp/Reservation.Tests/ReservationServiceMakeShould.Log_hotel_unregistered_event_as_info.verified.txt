@@ -1,0 +1,7 @@
+﻿{
+  Logs: [
+    DEBUG: ReservationService : Start making reservation,
+    ERROR: Hotel not found, can't proceed with reservation,
+    INFO: ReservationService : Hotel Unknown Hotel is not registered in our reservation system
+  ]
+}

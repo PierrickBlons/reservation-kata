@@ -1,0 +1,14 @@
+﻿{
+  Logger: {
+    Logs: [
+      DEBUG: ReservationService : Start making reservation,
+      DEBUG: ReservationService : Hotel Continental has available rooms,
+      INFO: ReservationService : No room found for 42 people
+    ]
+  },
+  Metrics: {
+    Metrics: {
+      Continental.reservations.occupancyNotAvailable: 1
+    }
+  }
+}

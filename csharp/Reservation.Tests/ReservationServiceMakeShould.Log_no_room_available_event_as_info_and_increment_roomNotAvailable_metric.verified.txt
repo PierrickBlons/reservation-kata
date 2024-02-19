@@ -1,0 +1,13 @@
+﻿{
+  Logger: {
+    Logs: [
+      DEBUG: ReservationService : Start making reservation,
+      INFO: ReservationService : Hotel Sofitel doesn't have room for the selected period
+    ]
+  },
+  Metrics: {
+    Metrics: {
+      Sofitel.reservations.roomNotAvailable: 1
+    }
+  }
+}
