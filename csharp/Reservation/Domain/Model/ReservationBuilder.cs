@@ -2,15 +2,8 @@ namespace Reservation.Domain.Model;
 
 public class ReservationBuilder
 {
-    private string? _hotelName;
     private int _paxNumber;
     private Stay _stay;
-
-    public ReservationBuilder ForHotel(string? hotelName)
-    {
-        _hotelName = hotelName;
-        return this;
-    }
 
     public ReservationBuilder WithOccupancy(int paxNumber)
     {
@@ -24,5 +17,5 @@ public class ReservationBuilder
         return this;
     }
 
-    public Reservation Build() => new(_hotelName, _paxNumber, _stay);
+    public Reservation Build() => new(_paxNumber, _stay);
 }
