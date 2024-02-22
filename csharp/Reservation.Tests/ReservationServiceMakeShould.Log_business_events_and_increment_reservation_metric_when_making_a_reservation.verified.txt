@@ -1,0 +1,16 @@
+﻿{
+  Logger: {
+    Logs: [
+      DEBUG: ReservationService : Start making reservation,
+      DEBUG: ReservationService : Hotel La Corniche has available rooms,
+      DEBUG: ReservationService : Room found for 2 people,
+      DEBUG: ReservationService : Room available from 20240302 to 20240308,
+      INFO: ReservationService : Reservation GHRKJIK-45 is confirmed
+    ]
+  },
+  Metrics: {
+    Metrics: {
+      La Corniche.reservations: 1
+    }
+  }
+}

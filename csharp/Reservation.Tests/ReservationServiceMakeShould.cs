@@ -62,5 +62,59 @@ namespace Reservation.Tests
 
             Check.That(failedReservation.Error).Equals($"No room found for {paxNumber} people");
         }
+
+        [Fact]
+        public Task Log_business_events_and_increment_reservation_metric_when_making_a_reservation()
+        {
+            const string? hotelName = "La Corniche";
+            const int paxNumber = 2;
+            var (begin, end) = (DateTime.Now.AddDays(12), DateTime.Now.AddDays(18));
+
+            var spyLogger = new SpyLogger();
+            var spyMetrics = new SpyMetrics();
+            _ = new ReservationService(spyLogger, spyMetrics, new InMemoryHotelRepository(spyLogger))
+                .Make(hotelName, paxNumber, (begin, end));
+
+            return Verify(new { Logger = spyLogger, Metrics = spyMetrics});
+        }
+
+        [Fact]
+        public Task Log_hotel_unregistered_event_as_info()
+        {
+            const string? hotelName = "Unknown Hotel";
+
+            var spyLogger = new SpyLogger();
+            _ = new ReservationService(spyLogger, new DummyMetrics(), new InMemoryHotelRepository(spyLogger))
+                .Make(hotelName, 3, (new DateTime(), new DateTime()));
+
+            return Verify(spyLogger);
+        }
+
+        [Fact]
+        public Task Log_no_room_available_event_as_info_and_increment_roomNotAvailable_metric()
+        {
+            const string hotelName = "Sofitel";
+
+            var spyLogger = new SpyLogger();
+            var spyMetrics = new SpyMetrics();
+            _ = new ReservationService(spyLogger, spyMetrics, new InMemoryHotelRepository(spyLogger))
+                .Make(hotelName, 3, (DateTime.Now.AddDays(-10), DateTime.Now.AddDays(-8)));
+
+            return Verify(new { Logger = spyLogger, Metrics = spyMetrics});
+        }
+
+        [Fact]
+        public Task Log_no_room_available_for_occupancy_as_info_and_increment_occupancyNotAvailable_metric()
+        {
+            const string hotelName = "Continental";
+            var paxNumber = 42;
+
+            var spyLogger = new SpyLogger();
+            var spyMetrics = new SpyMetrics();
+            _ = new ReservationService(spyLogger, spyMetrics, new InMemoryHotelRepository(spyLogger))
+                .Make(hotelName, paxNumber, (DateTime.Now.AddDays(6), DateTime.Now.AddDays(9)));
+
+            return Verify(new { Logger = spyLogger, Metrics = spyMetrics });
+        }
     }
 }
