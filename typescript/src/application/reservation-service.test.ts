@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { metrics } from '../diagnostics/metrics'
 import { HotelName, PaxNumber, Reference } from '../domain/hotel'
-import { ConfirmedRegistration } from '../domain/registration'
+import { ConfirmedRegistration } from '../domain/reservation'
 import { inMemoryHotelRepository } from '../infrastructure/hotel-repository'
 import reservationService from './reservation-service'
 

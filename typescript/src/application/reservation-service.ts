@@ -3,11 +3,11 @@ import Metrics from '../diagnostics/metrics'
 import {
   HotelName,
   PaxNumber,
-  Reference,
+  confirmReservation,
   hasAvailableRoom,
   hasRoomForOccupancy,
+  initializeReservation
 } from '../domain/hotel'
-import { ConfirmedRegistration } from '../domain/registration'
 import { HotelRepository } from '../infrastructure/hotel-repository'
 
 const reservationService = (
@@ -21,7 +21,6 @@ const reservationService = (
     stay: { begin: Date; end: Date },
   ) => {
     logger.debug('Start making reservation')
-    const reference = 'GHRKJIK-45' as Reference
 
     const registeredHotel = hotelRepository(logger).isRegistered(hotelName)
 
@@ -35,18 +34,32 @@ const reservationService = (
               hotelWithRoom,
               paxNumber,
             )
+
+            logger.debug(`Hotel ${hotelWithRoom.hotel} has room available`)
+
             switch (hotelAvailability.type) {
               case 'registeredHotelRoomOccupancyAvailable': {
-                return {
-                  hotel: hotelAvailability.hotel,
-                  pax: paxNumber,
-                  stay,
-                  reference,
-                } satisfies ConfirmedRegistration
+                logger.debug(
+                  `Hotel ${hotelWithRoom.hotel}: Room found for ${paxNumber}`,
+                )
+
+                const draftReservation = initializeReservation(
+                  hotelAvailability, paxNumber, stay)
+                
+                logger.debug(
+                  `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin} to ${stay.end} for ${paxNumber} people`,
+                )
+                metrics.increment(
+                  `${hotelWithRoom.hotel}.reservations`,
+                )
+                return confirmReservation(hotelAvailability, draftReservation)              
               }
               case 'registeredHotelRoomOccupancyInsufficient': {
                 const roomNotAvailableMessage = `No room found for ${paxNumber} people`
                 logger.info(roomNotAvailableMessage)
+                metrics.increment(
+                  `${hotelWithRoom.hotel}.reservations.occupancyNotAvailable`,
+                )
                 return { Error: roomNotAvailableMessage }
               }
             }
@@ -54,6 +67,9 @@ const reservationService = (
           case 'registeredHotelRoomNotAvailable': {
             const roomNotAvailableMessage = `Hotel ${hotelWithRoom.hotel} doesn't have room for the selected period`
             logger.info(roomNotAvailableMessage)
+            metrics.increment(
+              `${hotelWithRoom.hotel}.reservations.roomNotAvailable`,
+            )
             return { Error: roomNotAvailableMessage }
           }
         }

@@ -1,3 +1,5 @@
+import { ConfirmedRegistration, DraftReservation } from "./reservation";
+
 export type HotelName = string & { __brand: 'hotelName' }
 export type PaxNumber = number & { __brand: 'paxNumber' }
 export type Reference = string & { __brand: 'reference' }
@@ -55,6 +57,10 @@ type HasRoomForOccupancy = (
   pax: PaxNumber,
 ) => RegisteredHotelOccupancy
 
+type InitializeReservation = (registeredHotelRoomOccupancyAvailable : RegisteredHotelRoomOccupancyAvailable, pax : PaxNumber, stay : { begin : Date, end : Date }) => DraftReservation
+
+type ConfirmReservation = (RegisteredHotelRoomOccupancyAvailable: RegisteredHotelRoomOccupancyAvailable, draftReservation : DraftReservation) => ConfirmedRegistration
+
 export const hasRoomForOccupancy: HasRoomForOccupancy = (
   registeredHotelWithAvailableRoom,
   pax,
@@ -88,4 +94,27 @@ export const hasAvailableRoom: HasAvailableRoom = (
     type: 'registeredHotelRoomNotAvailable',
     hotel: registeredHotel.hotel,
   } satisfies RegisteredHotelRoomNotAvailable
+}
+
+export const initializeReservation : InitializeReservation = (
+  registeredHotelRoomOccupancyAvailable,
+  pax,
+  stay
+) => {
+  return {
+    pax,
+    stay,
+  } satisfies DraftReservation
+}
+
+export const confirmReservation: ConfirmReservation = (
+  registeredHotelRoomOccupancyAvailable,
+  draftReservation,
+) => {
+  return {
+    hotel: registeredHotelRoomOccupancyAvailable.hotel,
+    pax: draftReservation.pax,
+    stay: draftReservation.stay,
+    reference: 'GHRKJIK-45' as Reference,
+  } satisfies ConfirmedRegistration
 }
