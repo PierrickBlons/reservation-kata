@@ -37,3 +37,6 @@ coverage/
 .DS_Store
 .idea/
 *.log
+
+# vscode
+.vscode/

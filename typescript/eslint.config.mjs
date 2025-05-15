@@ -1,3 +1,10 @@
-import { defineConfig } from 'eslint/config'
+import eslint from '@eslint/js'
+import prettierConfig from 'eslint-config-prettier'
+import tseslint from 'typescript-eslint'
 
-export default defineConfig([])
+export default tseslint.config(
+  eslint.configs.recommended,
+  tseslint.configs.strictTypeChecked,
+  tseslint.configs.stylisticTypeChecked,
+  prettierConfig,
+)
