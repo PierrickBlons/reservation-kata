@@ -39,7 +39,7 @@ namespace Reservation.Tests
         }
 
         [Fact]
-        public void Gives_roomNotAvailable_when_hotel_is_not_found()
+        public void Gives_roomNotAvailable_when_hotel_has_no_room_for_requested_period()
         {
             const string hotelName = "Sofitel";
 
@@ -51,7 +51,7 @@ namespace Reservation.Tests
         }
 
         [Fact]
-        public void Gives_occupancyNotAvailable_when_hotel_is_not_found()
+        public void Gives_occupancyNotAvailable_when_hotel_has_not_enough_occupancy()
         {
             const string hotelName = "Continental";
 
