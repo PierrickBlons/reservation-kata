@@ -5,7 +5,7 @@ You recently joined a company that builds software to handle reservations for ho
 
 Unfortunately, this is a legacy code with a lot of logs and metrics everywhere. So, it's not easy to read and understand. But you manage to organize an event storming with a domain expert to give you the details of the business events happening during the booking process.
 
-![Reservation provess event storming](docs/assets/reservation-event-storming.jpg)
+![Reservation process event storming](docs/assets/reservation-event-storming.jpg)
 
 ## Goal
 One of your new teammate just read the [Domain Oriented Observability article](https://martinfowler.com/articles/domain-oriented-observability.html) on Martin's Fowler blog written by [Pete Hodgson](https://blog.thepete.net/about/).
