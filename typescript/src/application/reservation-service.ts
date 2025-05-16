@@ -6,7 +6,7 @@ import {
   confirmReservation,
   hasAvailableRoom,
   hasRoomForOccupancy,
-  initializeReservation
+  initializeReservation,
 } from '../domain/hotel'
 import { HotelRepository } from '../infrastructure/hotel-repository'
 
@@ -44,15 +44,16 @@ const reservationService = (
                 )
 
                 const draftReservation = initializeReservation(
-                  hotelAvailability, paxNumber, stay)
-                
+                  hotelAvailability,
+                  paxNumber,
+                  stay,
+                )
+
                 logger.debug(
                   `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin} to ${stay.end} for ${paxNumber} people`,
                 )
-                metrics.increment(
-                  `${hotelWithRoom.hotel}.reservations`,
-                )
-                return confirmReservation(hotelAvailability, draftReservation)              
+                metrics.increment(`${hotelWithRoom.hotel}.reservations`)
+                return confirmReservation(hotelAvailability, draftReservation)
               }
               case 'registeredHotelRoomOccupancyInsufficient': {
                 const roomNotAvailableMessage = `No room found for ${paxNumber} people`
