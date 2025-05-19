@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { metrics } from '../diagnostics/metrics'
-import { HotelName, PaxNumber, Reference } from '../domain/hotel'
+import { HotelName, PaxNumber, Reference, Stay } from '../domain/hotel'
 import { ConfirmedRegistration } from '../domain/reservation'
 import { inMemoryHotelRepository } from '../infrastructure/hotel-repository'
 import reservationService from './reservation-service'
@@ -29,7 +29,7 @@ describe('reservation service make should', () => {
       stay: {
         begin,
         end,
-      },
+      } satisfies Stay,
       reference: 'GHRKJIK-45' as Reference,
     } satisfies ConfirmedRegistration)
   })
@@ -44,7 +44,7 @@ describe('reservation service make should', () => {
     ).make(unknownHotel, 3 as PaxNumber, {
       begin: addDays(new Date(), 3),
       end: addDays(new Date(), 6),
-    })
+    } satisfies Stay)
 
     expect(failedReservation).toEqual({
       Error: `Hotel ${unknownHotel} is not registered in our reservation system`,
@@ -59,9 +59,9 @@ describe('reservation service make should', () => {
       metrics,
       inMemoryHotelRepository,
     ).make(hotel, 3 as PaxNumber, {
-      begin: new Date(),
-      end: addDays(new Date(), 2),
-    })
+      begin: addDays(new Date(), 60),
+      end: addDays(new Date(), 62),
+    } satisfies Stay)
 
     expect(failedReservation).toEqual({
       Error: `Hotel ${hotel} doesn't have room for the selected period`,
@@ -79,7 +79,7 @@ describe('reservation service make should', () => {
     ).make(unavailableHotel, requestedPaxNumber, {
       begin: addDays(new Date(), 7),
       end: addDays(new Date(), 9),
-    })
+    } satisfies Stay)
 
     expect(failedReservation).toEqual({
       Error: `No room found for ${requestedPaxNumber} people`,

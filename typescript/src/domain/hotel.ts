@@ -1,25 +1,32 @@
-import { ConfirmedRegistration, DraftReservation } from "./reservation";
+import { ConfirmedRegistration, DraftReservation } from './reservation'
 
 export type HotelName = string & { __brand: 'hotelName' }
 export type PaxNumber = number & { __brand: 'paxNumber' }
 export type Reference = string & { __brand: 'reference' }
 
 export type UnregisteredHotel = { type: 'unregisteredHotel'; hotel: HotelName }
+
 type Room = {
   type: 'double' | 'single'
+  pax: PaxNumber
+}
+
+type RoomAvailability = {
+  rooms: Room[]
+  availabilityPeriod: Stay
 }
 
 export type RegisteredHotel = {
   type: 'registeredHotel'
   hotel: HotelName
-  rooms: Room[]
+  rooms: RoomAvailability[]
 }
 
 export type Hotel = RegisteredHotel | UnregisteredHotel
 
 type HasAvailableRoom = (
   registeredHotel: RegisteredHotel,
-  requestedStay: { begin: Date; end: Date },
+  requestedStay: Stay,
 ) => RegisteredHotelRoom
 
 type RegisteredHotelRoomAvailable = {
@@ -57,16 +64,27 @@ type HasRoomForOccupancy = (
   pax: PaxNumber,
 ) => RegisteredHotelOccupancy
 
-type InitializeReservation = (registeredHotelRoomOccupancyAvailable : RegisteredHotelRoomOccupancyAvailable, pax : PaxNumber, stay : { begin : Date, end : Date }) => DraftReservation
+export type Stay = {
+  begin: Date
+  end: Date
+}
 
-type ConfirmReservation = (RegisteredHotelRoomOccupancyAvailable: RegisteredHotelRoomOccupancyAvailable, draftReservation : DraftReservation) => ConfirmedRegistration
+type InitializeReservation = (
+  registeredHotelRoomOccupancyAvailable: RegisteredHotelRoomOccupancyAvailable,
+  pax: PaxNumber,
+  stay: Stay,
+) => DraftReservation
+
+type ConfirmReservation = (
+  RegisteredHotelRoomOccupancyAvailable: RegisteredHotelRoomOccupancyAvailable,
+  draftReservation: DraftReservation,
+) => ConfirmedRegistration
 
 export const hasRoomForOccupancy: HasRoomForOccupancy = (
   registeredHotelWithAvailableRoom,
   pax,
 ) => {
-  const MAX_OCCUPANCY = 10 as PaxNumber
-  if (pax < MAX_OCCUPANCY) {
+  if (registeredHotelWithAvailableRoom.room.pax >= pax) {
     return {
       type: 'registeredHotelRoomOccupancyAvailable',
       hotel: registeredHotelWithAvailableRoom.hotel,
@@ -81,13 +99,26 @@ export const hasRoomForOccupancy: HasRoomForOccupancy = (
 
 export const hasAvailableRoom: HasAvailableRoom = (
   registeredHotel: RegisteredHotel,
-  requestedStay: { begin: Date; end: Date },
+  requestedStay: Stay,
 ) => {
-  if (registeredHotel.rooms.length > 0 && requestedStay.begin > new Date()) {
+  if (registeredHotel.rooms.length === 0) {
+    return {
+      type: 'registeredHotelRoomNotAvailable',
+      hotel: registeredHotel.hotel,
+    } satisfies RegisteredHotelRoomNotAvailable
+  }
+
+  const roomAvailability = registeredHotel.rooms.find(
+    (roomAvailability) =>
+      roomAvailability.availabilityPeriod.begin <= requestedStay.begin &&
+      roomAvailability.availabilityPeriod.end >= requestedStay.end,
+  )
+
+  if (roomAvailability) {
     return {
       type: 'registeredHotelRoomAvailable',
       hotel: registeredHotel.hotel,
-      room: registeredHotel.rooms[0],
+      room: roomAvailability.rooms[0],
     } satisfies RegisteredHotelRoomAvailable
   }
   return {
@@ -96,10 +127,10 @@ export const hasAvailableRoom: HasAvailableRoom = (
   } satisfies RegisteredHotelRoomNotAvailable
 }
 
-export const initializeReservation : InitializeReservation = (
+export const initializeReservation: InitializeReservation = (
   registeredHotelRoomOccupancyAvailable,
   pax,
-  stay
+  stay,
 ) => {
   return {
     pax,

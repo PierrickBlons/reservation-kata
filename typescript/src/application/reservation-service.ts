@@ -25,7 +25,7 @@ const reservationService = (
     const registeredHotel = hotelRepository(logger).isRegistered(hotelName)
 
     if (registeredHotel.type === 'unregisteredHotel') {
-      const hotelNotFoundMessage = `Hotel ${registeredHotel.hotel} not found`
+      const hotelNotFoundMessage = `Hotel ${registeredHotel.hotel} is not registered in our reservation system`
       logger.info(hotelNotFoundMessage)
       metrics.increment(`${hotelName}.reservations.hotelNotFound`)
       return { Error: hotelNotFoundMessage }
