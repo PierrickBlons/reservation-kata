@@ -1,4 +1,4 @@
-import { HotelName, PaxNumber, Reference } from './hotel';
+import { HotelName, PaxNumber, Reference } from './hotel'
 
 export type DraftReservation = {
   pax: PaxNumber

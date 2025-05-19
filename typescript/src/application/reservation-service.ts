@@ -3,10 +3,9 @@ import Metrics from '../diagnostics/metrics'
 import {
   HotelName,
   PaxNumber,
-  confirmReservation,
+  RegisteredHotelRoomAvailable,
+  RegisteredHotelRoomOccupancyAvailable,
   hasAvailableRoom,
-  hasRoomForOccupancy,
-  initializeReservation,
 } from '../domain/hotel'
 import { HotelRepository } from '../infrastructure/hotel-repository'
 
@@ -40,20 +39,29 @@ const reservationService = (
       return { Error: roomNotAvailableMessage }
     }
 
-    const hotelAvailability = hasRoomForOccupancy(hotelWithRoom, paxNumber)
+    const hotelAvailability = RegisteredHotelRoomAvailable.hasRoomForOccupancy(
+      hotelWithRoom,
+      paxNumber,
+    )
 
     logger.debug(`Hotel ${hotelWithRoom.hotel} has room available`)
 
     if (hotelAvailability.type === 'registeredHotelRoomOccupancyAvailable') {
       logger.debug(`Hotel ${hotelWithRoom.hotel}: Room found for ${paxNumber}`)
 
-      const draftReservation = initializeReservation(hotelAvailability)
+      const draftReservation =
+        RegisteredHotelRoomOccupancyAvailable.initializeReservation(
+          hotelAvailability,
+        )
 
       logger.debug(
         `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin} to ${stay.end} for ${paxNumber} people`,
       )
       metrics.increment(`${hotelWithRoom.hotel}.reservations`)
-      return confirmReservation(hotelAvailability, draftReservation)
+      return RegisteredHotelRoomOccupancyAvailable.confirmReservation(
+        hotelAvailability,
+        draftReservation,
+      )
     }
 
     const roomNotAvailableMessage = `No room found for ${paxNumber} people`

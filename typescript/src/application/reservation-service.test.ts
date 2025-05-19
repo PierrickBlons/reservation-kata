@@ -26,10 +26,7 @@ describe('reservation service make should', () => {
     expect(confirmedReservation).toEqual({
       hotel,
       pax: paxNumber,
-      stay: {
-        begin,
-        end,
-      } satisfies Stay,
+      stay: Stay.create(begin, end),
       reference: 'GHRKJIK-45' as Reference,
     } satisfies ConfirmedRegistration)
   })
