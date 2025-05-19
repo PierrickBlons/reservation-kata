@@ -47,11 +47,7 @@ const reservationService = (
     if (hotelAvailability.type === 'registeredHotelRoomOccupancyAvailable') {
       logger.debug(`Hotel ${hotelWithRoom.hotel}: Room found for ${paxNumber}`)
 
-      const draftReservation = initializeReservation(
-        hotelAvailability,
-        paxNumber,
-        stay,
-      )
+      const draftReservation = initializeReservation(hotelAvailability)
 
       logger.debug(
         `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin} to ${stay.end} for ${paxNumber} people`,

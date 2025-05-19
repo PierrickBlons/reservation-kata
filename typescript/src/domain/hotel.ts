@@ -32,6 +32,7 @@ type HasAvailableRoom = (
 type RegisteredHotelRoomAvailable = {
   type: 'registeredHotelRoomAvailable'
   hotel: HotelName
+  stayPeriod: Stay
   room: Room
 }
 
@@ -47,6 +48,7 @@ type RegisteredHotelRoom =
 type RegisteredHotelRoomOccupancyAvailable = {
   type: 'registeredHotelRoomOccupancyAvailable'
   hotel: HotelName
+  stayPeriod: Stay
   room: Room
 }
 
@@ -71,8 +73,6 @@ export type Stay = {
 
 type InitializeReservation = (
   registeredHotelRoomOccupancyAvailable: RegisteredHotelRoomOccupancyAvailable,
-  pax: PaxNumber,
-  stay: Stay,
 ) => DraftReservation
 
 type ConfirmReservation = (
@@ -88,6 +88,7 @@ export const hasRoomForOccupancy: HasRoomForOccupancy = (
     return {
       type: 'registeredHotelRoomOccupancyAvailable',
       hotel: registeredHotelWithAvailableRoom.hotel,
+      stayPeriod: registeredHotelWithAvailableRoom.stayPeriod,
       room: registeredHotelWithAvailableRoom.room,
     } satisfies RegisteredHotelRoomOccupancyAvailable
   }
@@ -118,6 +119,7 @@ export const hasAvailableRoom: HasAvailableRoom = (
     return {
       type: 'registeredHotelRoomAvailable',
       hotel: registeredHotel.hotel,
+      stayPeriod: requestedStay,
       room: roomAvailability.rooms[0],
     } satisfies RegisteredHotelRoomAvailable
   }
@@ -129,12 +131,10 @@ export const hasAvailableRoom: HasAvailableRoom = (
 
 export const initializeReservation: InitializeReservation = (
   registeredHotelRoomOccupancyAvailable,
-  pax,
-  stay,
 ) => {
   return {
-    pax,
-    stay,
+    pax: registeredHotelRoomOccupancyAvailable.room.pax,
+    stay: registeredHotelRoomOccupancyAvailable.stayPeriod,
   } satisfies DraftReservation
 }
 
