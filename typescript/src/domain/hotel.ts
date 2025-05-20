@@ -47,7 +47,7 @@ type HasAvailableRoom = (
   requestedStay: Stay,
 ) => RegisteredHotelRoom
 
-export const hasAvailableRoom: HasAvailableRoom = (
+const hasAvailableRoom: HasAvailableRoom = (
   registeredHotel: RegisteredHotel,
   requestedStay: Stay,
 ) => {
@@ -77,6 +77,10 @@ export const hasAvailableRoom: HasAvailableRoom = (
     type: 'registeredHotelRoomNotAvailable',
     hotel: registeredHotel.hotel,
   } satisfies RegisteredHotelRoomNotAvailable
+}
+
+export const RegisteredHotel = {
+  hasAvailableRoom,
 }
 
 export type Hotel = RegisteredHotel | UnregisteredHotel

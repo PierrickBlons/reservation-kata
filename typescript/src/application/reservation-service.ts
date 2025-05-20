@@ -3,9 +3,9 @@ import Metrics from '../diagnostics/metrics'
 import {
   HotelName,
   PaxNumber,
+  RegisteredHotel,
   RegisteredHotelRoomAvailable,
   RegisteredHotelRoomOccupancyAvailable,
-  hasAvailableRoom,
 } from '../domain/hotel'
 import { HotelRepository } from '../infrastructure/hotel-repository'
 
@@ -30,7 +30,10 @@ const reservationService = (
       return { Error: hotelNotFoundMessage }
     }
 
-    const hotelWithRoom = hasAvailableRoom(registeredHotel, stay)
+    const hotelWithRoom = RegisteredHotel.hasAvailableRoom(
+      registeredHotel,
+      stay,
+    )
 
     if (hotelWithRoom.type === 'registeredHotelRoomNotAvailable') {
       const roomNotAvailableMessage = `Hotel ${hotelWithRoom.hotel} doesn't have room for the selected period`
