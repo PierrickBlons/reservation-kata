@@ -21,7 +21,7 @@ describe('reservation service make should', () => {
       console,
       metrics,
       inMemoryHotelRepository,
-    ).make(hotel, paxNumber, { begin, end })
+    ).make(hotel, paxNumber, Stay.create(begin, end))
 
     expect(confirmedReservation).toEqual({
       hotel,
@@ -38,10 +38,11 @@ describe('reservation service make should', () => {
       console,
       metrics,
       inMemoryHotelRepository,
-    ).make(unknownHotel, 3 as PaxNumber, {
-      begin: addDays(new Date(), 3),
-      end: addDays(new Date(), 6),
-    } satisfies Stay)
+    ).make(
+      unknownHotel,
+      3 as PaxNumber,
+      Stay.create(addDays(new Date(), 3), addDays(new Date(), 6)),
+    )
 
     expect(failedReservation).toEqual({
       Error: `Hotel ${unknownHotel} is not registered in our reservation system`,
@@ -55,10 +56,11 @@ describe('reservation service make should', () => {
       console,
       metrics,
       inMemoryHotelRepository,
-    ).make(hotel, 3 as PaxNumber, {
-      begin: addDays(new Date(), 60),
-      end: addDays(new Date(), 62),
-    } satisfies Stay)
+    ).make(
+      hotel,
+      3 as PaxNumber,
+      Stay.create(addDays(new Date(), 60), addDays(new Date(), 62)),
+    )
 
     expect(failedReservation).toEqual({
       Error: `Hotel ${hotel} doesn't have room for the selected period`,
@@ -67,16 +69,17 @@ describe('reservation service make should', () => {
 
   it('give occupancyNotAvailable when hotel has no occupancy for the period', () => {
     const unavailableHotel = 'Continental' as HotelName
-
     const requestedPaxNumber = 42 as PaxNumber
+
     const failedReservation = reservationService(
       console,
       metrics,
       inMemoryHotelRepository,
-    ).make(unavailableHotel, requestedPaxNumber, {
-      begin: addDays(new Date(), 7),
-      end: addDays(new Date(), 9),
-    } satisfies Stay)
+    ).make(
+      unavailableHotel,
+      requestedPaxNumber,
+      Stay.create(addDays(new Date(), 7), addDays(new Date(), 9)),
+    )
 
     expect(failedReservation).toEqual({
       Error: `No room found for ${requestedPaxNumber} people`,
