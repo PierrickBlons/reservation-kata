@@ -1,0 +1,39 @@
+# Node modules
+node_modules/
+
+# Yarn v4 cache and files
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+.yarnrc.yml
+
+# Build output
+dist/
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode settings
+.vscode/
+
+# Vitest coverage and cache
+coverage/
+.vitest/
+
+# Environment files
+.env
+.env.*
+
+# Misc
+.DS_Store
+.idea/
+*.log
