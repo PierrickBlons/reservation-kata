@@ -116,21 +116,4 @@ describe('reservation service make should', () => {
 
     expect({ metrics: metricsBucket, logs: logsBucket }).toMatchSnapshot()
   })
-
-  describe('observability', () => {
-    it('should record a metric when a reservation is made', () => {
-      const hotel = 'La Corniche' as HotelName
-      const pax = 2 as PaxNumber
-      const begin = dateBegin
-      const end = addDays(new Date(), 2)
-
-      reservationService(
-        spyLogger(logsBucket),
-        spyMetrics(metricsBucket),
-        inMemoryHotelRepository,
-      ).make(hotel, pax, Stay.create(begin, end))
-
-      expect({ metrics: metricsBucket, logs: logsBucket }).toMatchSnapshot()
-    })
-  })
 })
