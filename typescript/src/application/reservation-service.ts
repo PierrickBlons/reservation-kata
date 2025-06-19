@@ -59,7 +59,7 @@ const reservationService = (
         )
 
       logger.debug(
-        `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin} to ${stay.end} for ${paxNumber} people`,
+        `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin.toLocaleDateString()} to ${stay.end.toLocaleDateString()} for ${paxNumber} people`,
       )
       metrics.increment(`${hotelWithRoom.hotel}.reservations`)
       return RegisteredHotelRoomOccupancyAvailable.confirmReservation(

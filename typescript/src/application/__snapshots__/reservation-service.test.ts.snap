@@ -1,0 +1,137 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`reservation service make should > give confirmedregistration with reference number 1`] = `
+{
+  "logs": [
+    {
+      "level": "debug",
+      "log": "Start making reservation",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche has room available",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche: Room found for 2",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche: Reservation option from 6/20/2025 to 6/21/2025 for 2 people",
+    },
+  ],
+  "metrics": [
+    {
+      "name": "La Corniche.reservations",
+      "value": 1,
+    },
+  ],
+}
+`;
+
+exports[`reservation service make should > give error when requested stay endDate is before startDate 1`] = `
+{
+  "logs": [],
+  "metrics": [],
+}
+`;
+
+exports[`reservation service make should > give hotel not registered in our reservation system error message when hotel is not registered 1`] = `
+{
+  "logs": [
+    {
+      "level": "debug",
+      "log": "Start making reservation",
+    },
+    {
+      "level": "error",
+      "log": "Hotel not found, can't proceed with reservation",
+    },
+    {
+      "level": "info",
+      "log": "Hotel Unknown Hotel is not registered in our reservation system",
+    },
+  ],
+  "metrics": [
+    {
+      "name": "Unknown Hotel.reservations.hotelNotFound",
+      "value": 1,
+    },
+  ],
+}
+`;
+
+exports[`reservation service make should > give occupancyNotAvailable when hotel has no occupancy for the period 1`] = `
+{
+  "logs": [
+    {
+      "level": "debug",
+      "log": "Start making reservation",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel Continental has room available",
+    },
+    {
+      "level": "info",
+      "log": "No room found for 42 people",
+    },
+  ],
+  "metrics": [
+    {
+      "name": "Continental.reservations.occupancyNotAvailable",
+      "value": 1,
+    },
+  ],
+}
+`;
+
+exports[`reservation service make should > give roomNotAvailable when hotel has no room for the requested period 1`] = `
+{
+  "logs": [
+    {
+      "level": "debug",
+      "log": "Start making reservation",
+    },
+    {
+      "level": "info",
+      "log": "Hotel Sofitel doesn't have room for the selected period",
+    },
+  ],
+  "metrics": [
+    {
+      "name": "Sofitel.reservations.roomNotAvailable",
+      "value": 1,
+    },
+  ],
+}
+`;
+
+exports[`reservation service make should > observability > should record a metric when a reservation is made 1`] = `
+{
+  "logs": [
+    {
+      "level": "debug",
+      "log": "Start making reservation",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche has room available",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche: Room found for 2",
+    },
+    {
+      "level": "debug",
+      "log": "Hotel La Corniche: Reservation option from 6/20/2025 to 6/21/2025 for 2 people",
+    },
+  ],
+  "metrics": [
+    {
+      "name": "La Corniche.reservations",
+      "value": 1,
+    },
+  ],
+}
+`;
