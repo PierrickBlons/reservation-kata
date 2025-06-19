@@ -6,75 +6,95 @@ import {
   RegisteredHotel,
   RegisteredHotelRoomAvailable,
   RegisteredHotelRoomOccupancyAvailable,
+  Stay,
 } from '../domain/hotel'
+import { ConfirmedRegistration } from '../domain/reservation'
 import { HotelRepository } from '../infrastructure/hotel-repository'
 
-const reservationService = (
-  logger: Logger,
-  metrics: Metrics,
-  hotelRepository: HotelRepository,
-) => ({
+export type ReservationServiceInstrumentation = {
+  ReservationStarted: () => void
+}
+
+export type ReservationService = {
   make: (
     hotelName: HotelName,
     paxNumber: PaxNumber,
-    stay: { begin: Date; end: Date },
-  ) => {
-    const makingReservationMessage = 'Start making reservation'
-    logger.debug(makingReservationMessage)
+    stay: Stay,
+  ) => ConfirmedRegistration | { Error: string }
+}
 
-    const registeredHotel = hotelRepository(logger).fetch(hotelName)
+export const reservationService = (
+  logger: Logger,
+  metrics: Metrics,
+  hotelRepository: HotelRepository,
+): ReservationService =>
+  ({
+    make: (
+      hotelName: HotelName,
+      paxNumber: PaxNumber,
+      stay: { begin: Date; end: Date },
+    ) => {
+      const makingReservationMessage = 'Start making reservation'
+      logger.debug(makingReservationMessage)
 
-    if (registeredHotel.type === 'unregisteredHotel') {
-      const hotelNotFoundMessage = `Hotel ${registeredHotel.hotel} is not registered in our reservation system`
-      logger.info(hotelNotFoundMessage)
-      metrics.increment(`${hotelName}.reservations.hotelNotFound`)
-      return { Error: hotelNotFoundMessage }
-    }
+      const registeredHotel = hotelRepository(logger).fetch(hotelName)
 
-    const hotelWithRoom = RegisteredHotel.hasAvailableRoom(
-      registeredHotel,
-      stay,
-    )
+      if (registeredHotel.type === 'unregisteredHotel') {
+        const hotelNotFoundMessage = `Hotel ${registeredHotel.hotel} is not registered in our reservation system`
+        logger.info(hotelNotFoundMessage)
+        metrics.increment(`${hotelName}.reservations.hotelNotFound`)
+        return { Error: hotelNotFoundMessage }
+      }
 
-    if (hotelWithRoom.type === 'registeredHotelRoomNotAvailable') {
-      const roomNotAvailableMessage = `Hotel ${hotelWithRoom.hotel} doesn't have room for the selected period`
-      logger.info(roomNotAvailableMessage)
-      metrics.increment(`${hotelWithRoom.hotel}.reservations.roomNotAvailable`)
-      return { Error: roomNotAvailableMessage }
-    }
+      const hotelWithRoom = RegisteredHotel.hasAvailableRoom(
+        registeredHotel,
+        stay,
+      )
 
-    const hotelAvailability = RegisteredHotelRoomAvailable.hasRoomForOccupancy(
-      hotelWithRoom,
-      paxNumber,
-    )
+      if (hotelWithRoom.type === 'registeredHotelRoomNotAvailable') {
+        const roomNotAvailableMessage = `Hotel ${hotelWithRoom.hotel} doesn't have room for the selected period`
+        logger.info(roomNotAvailableMessage)
+        metrics.increment(
+          `${hotelWithRoom.hotel}.reservations.roomNotAvailable`,
+        )
+        return { Error: roomNotAvailableMessage }
+      }
 
-    logger.debug(`Hotel ${hotelWithRoom.hotel} has room available`)
-
-    if (hotelAvailability.type === 'registeredHotelRoomOccupancyAvailable') {
-      logger.debug(`Hotel ${hotelWithRoom.hotel}: Room found for ${paxNumber}`)
-
-      const draftReservation =
-        RegisteredHotelRoomOccupancyAvailable.initializeReservation(
-          hotelAvailability,
+      const hotelAvailability =
+        RegisteredHotelRoomAvailable.hasRoomForOccupancy(
+          hotelWithRoom,
+          paxNumber,
         )
 
-      logger.debug(
-        `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin.toLocaleDateString()} to ${stay.end.toLocaleDateString()} for ${paxNumber} people`,
-      )
-      metrics.increment(`${hotelWithRoom.hotel}.reservations`)
-      return RegisteredHotelRoomOccupancyAvailable.confirmReservation(
-        hotelAvailability,
-        draftReservation,
-      )
-    }
+      logger.debug(`Hotel ${hotelWithRoom.hotel} has room available`)
 
-    const roomNotAvailableMessage = `No room found for ${paxNumber} people`
-    logger.info(roomNotAvailableMessage)
-    metrics.increment(
-      `${hotelWithRoom.hotel}.reservations.occupancyNotAvailable`,
-    )
-    return { Error: roomNotAvailableMessage }
-  },
-})
+      if (hotelAvailability.type === 'registeredHotelRoomOccupancyAvailable') {
+        logger.debug(
+          `Hotel ${hotelWithRoom.hotel}: Room found for ${paxNumber}`,
+        )
+
+        const draftReservation =
+          RegisteredHotelRoomOccupancyAvailable.initializeReservation(
+            hotelAvailability,
+          )
+
+        logger.debug(
+          `Hotel ${hotelWithRoom.hotel}: Reservation option from ${stay.begin.toLocaleDateString()} to ${stay.end.toLocaleDateString()} for ${paxNumber} people`,
+        )
+        metrics.increment(`${hotelWithRoom.hotel}.reservations`)
+        return RegisteredHotelRoomOccupancyAvailable.confirmReservation(
+          hotelAvailability,
+          draftReservation,
+        )
+      }
+
+      const roomNotAvailableMessage = `No room found for ${paxNumber} people`
+      logger.info(roomNotAvailableMessage)
+      metrics.increment(
+        `${hotelWithRoom.hotel}.reservations.occupancyNotAvailable`,
+      )
+      return { Error: roomNotAvailableMessage }
+    },
+  }) satisfies ReservationService
 
 export default reservationService

@@ -4,7 +4,10 @@ import { spyMetrics } from '../diagnostics/metrics'
 import { HotelName, PaxNumber, Reference, Stay } from '../domain/hotel'
 import { ConfirmedRegistration } from '../domain/reservation'
 import { inMemoryHotelRepository } from '../infrastructure/hotel-repository'
-import reservationService from './reservation-service'
+import {
+  ReservationService,
+  reservationService as service,
+} from './reservation-service'
 
 const addDays = (date: Date, days: number): Date => {
   date.setDate(date.getDate() + days)
@@ -14,6 +17,12 @@ const addDays = (date: Date, days: number): Date => {
 const dateBegin = addDays(new Date(), 1)
 const metricsBucket = []
 const logsBucket = []
+
+const reservationService = service(
+  spyLogger(logsBucket),
+  spyMetrics(metricsBucket),
+  inMemoryHotelRepository,
+) satisfies ReservationService
 
 describe('reservation service make should', () => {
   afterEach(() => {
@@ -27,11 +36,11 @@ describe('reservation service make should', () => {
     const begin = dateBegin
     const end = addDays(new Date(), 2)
 
-    const confirmedReservation = reservationService(
-      spyLogger(logsBucket),
-      spyMetrics(metricsBucket),
-      inMemoryHotelRepository,
-    ).make(hotel, pax, Stay.create(begin, end))
+    const confirmedReservation = reservationService.make(
+      hotel,
+      pax,
+      Stay.create(begin, end),
+    )
 
     expect(confirmedReservation).toEqual({
       hotel,
@@ -45,11 +54,7 @@ describe('reservation service make should', () => {
   it('give hotel not registered in our reservation system error message when hotel is not registered', () => {
     const unknownHotel = 'Unknown Hotel' as HotelName
 
-    const failedReservation = reservationService(
-      spyLogger(logsBucket),
-      spyMetrics(metricsBucket),
-      inMemoryHotelRepository,
-    ).make(
+    const failedReservation = reservationService.make(
       unknownHotel,
       3 as PaxNumber,
       Stay.create(addDays(new Date(), 3), addDays(new Date(), 6)),
@@ -64,11 +69,7 @@ describe('reservation service make should', () => {
   it('give roomNotAvailable when hotel has no room for the requested period', () => {
     const hotel = 'Sofitel' as HotelName
 
-    const failedReservation = reservationService(
-      spyLogger(logsBucket),
-      spyMetrics(metricsBucket),
-      inMemoryHotelRepository,
-    ).make(
+    const failedReservation = reservationService.make(
       hotel,
       3 as PaxNumber,
       Stay.create(addDays(new Date(), 60), addDays(new Date(), 62)),
@@ -84,11 +85,7 @@ describe('reservation service make should', () => {
     const unavailableHotel = 'Continental' as HotelName
     const requestedPaxNumber = 42 as PaxNumber
 
-    const failedReservation = reservationService(
-      spyLogger(logsBucket),
-      spyMetrics(metricsBucket),
-      inMemoryHotelRepository,
-    ).make(
+    const failedReservation = reservationService.make(
       unavailableHotel,
       requestedPaxNumber,
       Stay.create(addDays(new Date(), 7), addDays(new Date(), 9)),
@@ -107,11 +104,7 @@ describe('reservation service make should', () => {
     const end = addDays(new Date(), -1)
 
     expect(() =>
-      reservationService(
-        spyLogger(logsBucket),
-        spyMetrics(metricsBucket),
-        inMemoryHotelRepository,
-      ).make(hotel, pax, Stay.create(begin, end)),
+      reservationService.make(hotel, pax, Stay.create(begin, end)),
     ).toThrow('End date must be after begin date')
 
     expect({ metrics: metricsBucket, logs: logsBucket }).toMatchSnapshot()
