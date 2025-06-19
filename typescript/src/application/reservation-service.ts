@@ -19,9 +19,10 @@ const reservationService = (
     paxNumber: PaxNumber,
     stay: { begin: Date; end: Date },
   ) => {
-    logger.debug('Start making reservation')
+    const makingReservationMessage = 'Start making reservation'
+    logger.debug(makingReservationMessage)
 
-    const registeredHotel = hotelRepository(logger).isRegistered(hotelName)
+    const registeredHotel = hotelRepository(logger).fetch(hotelName)
 
     if (registeredHotel.type === 'unregisteredHotel') {
       const hotelNotFoundMessage = `Hotel ${registeredHotel.hotel} is not registered in our reservation system`

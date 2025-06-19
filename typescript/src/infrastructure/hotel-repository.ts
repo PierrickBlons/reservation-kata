@@ -8,7 +8,7 @@ import {
 } from '../domain/hotel'
 
 export type HotelRepository = (logger: Logger) => {
-  isRegistered: (hotelName: HotelName) => Hotel
+  fetch: (hotelName: HotelName) => Hotel
 }
 
 const addDays = (date: Date, days: number): Date => {
@@ -17,7 +17,7 @@ const addDays = (date: Date, days: number): Date => {
 }
 
 export const inMemoryHotelRepository: HotelRepository = (logger) => ({
-  isRegistered: (hotelName: HotelName) => {
+  fetch: (hotelName: HotelName) => {
     if (hotelName === 'Unknown Hotel') {
       logger.error("Hotel not found, can't proceed with reservation")
       return {

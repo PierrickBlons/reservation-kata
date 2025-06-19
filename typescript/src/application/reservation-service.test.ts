@@ -10,22 +10,24 @@ const addDays = (date: Date, days: number): Date => {
   return date
 }
 
+const dateBegin = addDays(new Date(), 1)
+
 describe('reservation service make should', () => {
   it('give confirmedregistration with reference number', () => {
     const hotel = 'La Corniche' as HotelName
-    const paxNumber = 2 as PaxNumber
-    const begin = addDays(new Date(), 1)
+    const pax = 2 as PaxNumber
+    const begin = dateBegin
     const end = addDays(new Date(), 2)
 
     const confirmedReservation = reservationService(
       console,
       metrics,
       inMemoryHotelRepository,
-    ).make(hotel, paxNumber, Stay.create(begin, end))
+    ).make(hotel, pax, Stay.create(begin, end))
 
     expect(confirmedReservation).toEqual({
       hotel,
-      pax: paxNumber,
+      pax,
       stay: Stay.create(begin, end),
       reference: 'GHRKJIK-45' as Reference,
     } satisfies ConfirmedRegistration)
