@@ -51,13 +51,6 @@ const hasAvailableRoom: HasAvailableRoom = (
   registeredHotel: RegisteredHotel,
   requestedStay: Stay,
 ) => {
-  if (registeredHotel.rooms.length === 0) {
-    return {
-      type: 'registeredHotelRoomNotAvailable',
-      hotel: registeredHotel.hotel,
-    } satisfies RegisteredHotelRoomNotAvailable
-  }
-
   const roomAvailability = registeredHotel.rooms.find(
     (roomAvailability) =>
       roomAvailability.availabilityPeriod.begin <= requestedStay.begin &&
