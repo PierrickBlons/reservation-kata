@@ -2,12 +2,6 @@ type Metrics = {
   increment: (metricName: string) => void
 }
 
-export const metrics = {
-  increment: (metricName: string) => {
-    console.log(`Metric incremented: ${metricName}`)
-  },
-}
-
 export const spyMetrics = (
   metricsBucket: Array<{ name: string; value: number }>,
 ) =>
